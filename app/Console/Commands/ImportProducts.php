@@ -44,21 +44,32 @@ class ImportProducts extends Command
         $file = Storage::get($path);
         $rows = array_map('str_getcsv', explode("\n", $file));
 
+        array_shift($rows);
+
         foreach ($rows as $row) {
-            if (count($row) < 5) {
+            if (count($row) < 6) {
                 continue;
             }
 
             [$id, $name, $manufacturer, $price, $attrValue, $description] = $row;
 
-            $product = Product::create([
-                'id' => $id,
-                'name'         => $name,
-                'manufacturer' => $manufacturer,
-                'price'        => floatval($price),
-                'category'     => $category,
-                'description'  => $description,
-            ]);
+            if (!is_numeric($id)) {
+                continue;
+            }
+
+            try {
+                $product = Product::create([
+                    'id' => $id,
+                    'name' => $name,
+                    'manufacturer' => $manufacturer,
+                    'price' => floatval($price),
+                    'category' => $category,
+                    'description' => $description,
+                ]);
+            } catch (\Throwable $e) {
+                $this->error("Failed inserting product ID: $id — " . $e->getMessage());
+                continue;
+            }
 
             ProductAttribute::create([
                 'product_id' => $product->id,
