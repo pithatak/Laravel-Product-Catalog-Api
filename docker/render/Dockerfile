@@ -4,20 +4,23 @@ RUN apt-get update && apt-get install -y \
     libzip-dev zip unzip git curl libsqlite3-dev \
     && docker-php-ext-install pdo pdo_sqlite zip
 
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 COPY . .
 
-# Create sqlite database file
+RUN composer install --no-dev --optimize-autoloader
+
+RUN npm install && npm run build
+
 RUN mkdir -p database \
     && touch database/database.sqlite \
     && chmod 666 database/database.sqlite
 
-# Fix permissions
 RUN chmod -R 775 storage bootstrap/cache
-
-RUN composer install --no-dev --optimize-autoloader
 
 RUN php artisan config:clear
 RUN php artisan route:clear
