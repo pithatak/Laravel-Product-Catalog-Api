@@ -1,44 +1,51 @@
 FROM php:8.2-fpm
 
-# Install SQLite + PHP extensions
+# Install system deps + sqlite dev headers
 RUN apt-get update && apt-get install -y \
-    libsqlite3-dev \
-    libzip-dev zip unzip git curl sqlite3 \
+    libsqlite3-dev libzip-dev zip unzip git curl \
     && docker-php-ext-install pdo pdo_sqlite zip
 
-# Copy composer binary
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
-
-# Copy project
 COPY . .
 
-# Install composer dependencies
+# Install PHP deps
 RUN composer install --no-dev --optimize-autoloader
 
-# Create sqlite database
+# Create sqlite file
 RUN mkdir -p database \
     && touch database/database.sqlite \
     && chmod 666 database/database.sqlite
 
+# Create .env from example and force DB -> sqlite for build-time migrations
+RUN if [ -f .env.example ]; then cp .env.example .env; else touch .env; fi \
+    && sed -i -E "s/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/" .env \
+    && sed -i -E "s|^DB_DATABASE=.*|DB_DATABASE=/var/www/html/database/database.sqlite|" .env \
+    && sed -i -E "s/^APP_ENV=.*/APP_ENV=production/" .env || true
+
+# Generate app key (requires vendor)
+RUN php artisan key:generate --force
+
 # Fix permissions
 RUN chmod -R 775 storage bootstrap/cache
 
-# Clear configs (NOW vendor folder exists)
-RUN php artisan config:clear
-RUN php artisan route:clear
-RUN php artisan cache:clear
+# Clear caches just in case
+RUN php artisan config:clear || true
+RUN php artisan route:clear || true
+RUN php artisan cache:clear || true
 
-# Run migrations
+# Run migrations & import CSV
 RUN php artisan migrate --force
-
-# Import CSV
 RUN php artisan app:import-products
 
 # Build frontend
-RUN npm install
-RUN npm run build
+RUN apt-get install -y curl gnupg # if not present
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install \
+    && npm run build
 
 ENV PORT=10000
 EXPOSE 10000
