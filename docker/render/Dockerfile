@@ -1,4 +1,3 @@
-# ---- Stage 1: Build frontend ----
 FROM node:20 AS frontend
 
 WORKDIR /app
@@ -10,7 +9,6 @@ COPY . .
 RUN npm run build
 
 
-# ---- Stage 2: Build PHP app ----
 FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
