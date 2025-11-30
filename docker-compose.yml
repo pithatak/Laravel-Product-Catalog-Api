@@ -2,7 +2,6 @@
 #                         docker-compose up --build -d                        #
 ###############################################################################
 
-version: '3.1'
 services:
   mysql:
     container_name: laravel-mysql
@@ -11,9 +10,9 @@ services:
       - 'mysql_data:/var/lib/mysql'
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
     ports:
       - '55002:3306'
     restart: unless-stopped

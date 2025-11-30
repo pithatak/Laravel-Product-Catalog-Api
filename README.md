@@ -19,6 +19,9 @@ The goal of the task was to:
 - MySQL 8
 - Nginx (Alpine)
 - Docker & Docker Compose
+- Vue 3 (Composition API)
+- TailwindCSS
+- Vite
 
 ---
 
@@ -116,6 +119,9 @@ Returns product with all attributes.
 5. Import CSV data
    docker exec -it php-fpm php artisan app:import-products
 
+6. Build frontend assets
+   docker exec -it php-fpm npm install
+   docker exec -it php-fpm npm run build
 
 
 Application will be available at:

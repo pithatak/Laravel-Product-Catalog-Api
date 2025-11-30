@@ -1,0 +1,17 @@
+{
+    "name": "Laravel Product Catalog",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "php-fpm",
+    "workspaceFolder": "/application",
+    "postCreateCommand": "composer install && php artisan key:generate && php artisan migrate && php artisan app:import-products",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bmewburn.vscode-intelephense-client",
+                "onecentlin.laravel5-snippets",
+                "EditorConfig.EditorConfig",
+                "dbaeumer.vscode-eslint"
+            ]
+        }
+    }
+}
