@@ -1,33 +1,38 @@
 FROM php:8.2-fpm
 
+# Install dependencies for SQLite
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl libsqlite3-dev \
+    libsqlite3-dev \
+    libzip-dev zip unzip git curl sqlite3 \
     && docker-php-ext-install pdo pdo_sqlite zip
-
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
-
-RUN npm install && npm run build
-
+# Create sqlite database
 RUN mkdir -p database \
     && touch database/database.sqlite \
     && chmod 666 database/database.sqlite
 
-RUN php artisan migrate --force
-
-RUN php artisan app:import-products
-
-RUN chmod -R 775 storage bootstrap/cache
-
+# Clear caches (important before migrate)
 RUN php artisan config:clear
 RUN php artisan route:clear
+RUN php artisan cache:clear
+
+# Run migrations
+RUN php artisan migrate --force
+
+# Import CSV
+RUN php artisan app:import-products
+
+# Permissions
+RUN chmod -R 775 storage bootstrap/cache
+
+# Build frontend
+RUN npm install
+RUN npm run build
 
 ENV PORT=10000
 EXPOSE 10000
