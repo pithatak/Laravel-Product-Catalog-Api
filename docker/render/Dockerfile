@@ -1,35 +1,27 @@
-FROM node:20 AS frontend
-
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm install
-
-COPY . .
-RUN npm run build
-
-
 FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl \
-    && docker-php-ext-install pdo_mysql zip
+    libzip-dev zip unzip git curl sqlite3 \
+    && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
-
 COPY . .
-COPY --from=frontend /app/public/build public/build
+
+# Create sqlite database file
+RUN mkdir -p database \
+    && touch database/database.sqlite \
+    && chmod 666 database/database.sqlite
+
+RUN chmod -R 775 storage bootstrap/cache
 
 RUN composer install --no-dev --optimize-autoloader
 
-RUN php artisan key:generate --force || true
-
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
+RUN php artisan config:clear
+RUN php artisan route:clear
 
 ENV PORT=10000
 EXPOSE 10000
 
-CMD ["php", "-S", "0.0.0.0:10000", "-t", "public"]
+CMD php -S 0.0.0.0:$PORT -t public
