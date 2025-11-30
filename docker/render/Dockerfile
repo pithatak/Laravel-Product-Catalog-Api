@@ -9,6 +9,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
+# Make startup script executable
+RUN chmod +x render-start.sh
+
 RUN composer install --no-dev --optimize-autoloader
 
 # Build frontend
