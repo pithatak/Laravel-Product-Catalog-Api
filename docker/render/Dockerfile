@@ -11,9 +11,6 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
-# Create default .env (needed ONLY during build)
-COPY .env.example .env
-
 # Create sqlite database
 RUN mkdir -p database \
     && touch database/database.sqlite \
