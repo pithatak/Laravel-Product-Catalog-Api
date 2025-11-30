@@ -38,6 +38,7 @@ class ProductFilterService
 
         if ($request->filled('min_capacity') || $request->filled('max_capacity')) {
             $query->whereHas('attributes', function ($q) use ($request) {
+                $q->whereRaw("value ~ '^[0-9\\.]+$'");
 
                 if ($request->filled('min_capacity')) {
                     $q->whereRaw("CAST(value AS DECIMAL(10,2)) >= ?", [$request->min_capacity]);
@@ -53,10 +54,10 @@ class ProductFilterService
             $query->whereHas('attributes', function ($q) use ($request) {
 
                 if ($request->filled('min_power')) {
-                    $q->where('value', '>=', $request->min_power);
+                    $q->whereRaw("value ~ '^[0-9\\.]+$' AND CAST(value AS DECIMAL(10,2)) >= ?", [$request->min_power]);
                 }
                 if ($request->filled('max_power')) {
-                    $q->where('value', '<=', $request->max_power);
+                    $q->whereRaw("value ~ '^[0-9\\.]+$' AND CAST(value AS DECIMAL(10,2)) <= ?", [$request->max_power]);
                 }
 
             });

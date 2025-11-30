@@ -58,24 +58,32 @@ class ImportProducts extends Command
             }
 
             try {
-                $product = Product::create([
-                    'id' => $id,
-                    'name' => $name,
-                    'manufacturer' => $manufacturer,
-                    'price' => floatval($price),
-                    'category' => $category,
-                    'description' => $description,
-                ]);
+                $product = Product::firstOrCreate(
+                    ['id' => $id],
+                    [
+                        'name' => $name,
+                        'manufacturer' => $manufacturer,
+                        'price' => floatval($price),
+                        'category' => $category,
+                        'description' => $description,
+                    ]
+                );
+
+                if ($product->wasRecentlyCreated) {
+                    ProductAttribute::create([
+                        'product_id' => $product->id,
+                        'key'        => $attributeKey,
+                        'value'      => $attrValue,
+                    ]);
+                    $this->info("Inserted product ID: $id");
+                } else {
+                    $this->info("Product ID $id already exists, skipping...");
+                }
+
             } catch (\Throwable $e) {
                 $this->error("Failed inserting product ID: $id — " . $e->getMessage());
                 continue;
             }
-
-            ProductAttribute::create([
-                'product_id' => $product->id,
-                'key'        => $attributeKey,
-                'value'      => $attrValue,
-            ]);
         }
 
         $this->info("Imported: {$filename}");
