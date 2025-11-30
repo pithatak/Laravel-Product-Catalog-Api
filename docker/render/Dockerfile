@@ -15,7 +15,8 @@ RUN chmod +x render-start.sh
 RUN composer install --no-dev --optimize-autoloader
 
 # Build frontend
-RUN apt-get install -y nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 ENV PORT=10000
 EXPOSE 10000
