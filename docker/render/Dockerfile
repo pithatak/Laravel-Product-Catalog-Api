@@ -15,9 +15,7 @@ RUN chmod +x render-start.sh
 RUN composer install --no-dev --optimize-autoloader
 
 # Build frontend
-RUN apt-get install -y nodejs npm
-RUN npm install
-RUN npm run build
+RUN apt-get install -y nodejs
 
 ENV PORT=10000
 EXPOSE 10000
