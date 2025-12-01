@@ -84,56 +84,133 @@ Category-specific filters:
 
 Implemented in App\Services\ProductFilterService.
 
-## 🌐 REST API Endpoints
-GET /api/products
-
-Returns filtered list of products.
-Examples:
-```bash
-
-    /api/products
-    /api/products?category=battery
-    /api/products?search=solar
-    /api/products?min_price=100&max_price=500
-    /api/products?category=panel&power_min=300
-    /api/products?category=connector&connector_type=MC4
-```
-Returns product with all attributes.
-```bash
-    /api/products/{id}
-```
 ## 🐳 Running With Docker
 
-1. Copy environment file
+1. Copy environment file:
+```bash
    cp .env.example .env
-
-2. Build & start containers
+```
+2. Build & start containers:
+```bash
    docker-compose up --build -d
-
-3. Generate application key
+```
+3. Generate application key:
+```bash
    docker exec -it php-fpm php artisan key:generate
-
-4. Run database migrations
+```
+4. Run database migrations:
+```bash
    docker exec -it php-fpm php artisan migrate
-
-5. Import CSV data
+```
+5. Import CSV data:
+```bash
    docker exec -it php-fpm php artisan app:import-products
-
-6. Build frontend assets
+```
+6. Build frontend assets:
+```bash
    docker exec -it php-fpm npm install
    docker exec -it php-fpm npm run build
-
+```
 
 Application will be available at:
 
-http://localhost:55000
+http://localhost:55000/catalog
 
-🧪 Testing the API
-All products:
-GET /api/products
 
-Batteries with capacity between 1000 and 3000:
-GET /api/products?category=battery&capacity_min=1000&capacity_max=3000
+### **🖥 Live Demo (Render)**
 
-Search:
-GET /api/products?search=panel
+👉 https://laravel-product-catalog-api.onrender.com/catalog
+
+(The API is also available via /api/products)
+
+
+### **🌐 REST API**
+
+GET /api/products — returns filtered products
+
+Examples:
+
+🔍 Full-text search
+```bash
+  GET /api/products?search=solar
+```
+
+🧩 Filter by manufacturer
+```bash
+    GET /api/products?manufacturer=SunVolt
+```
+
+💰 Price range
+```bash
+    GET /api/products?min_price=100&max_price=500
+```
+
+🔋 Batteries by capacity range
+```bash
+    GET /api/products?category=battery&capacity_min=1000&capacity_max=3000
+```
+
+☀ Panels by power output
+```bash
+    GET /api/products?category=panel&power_min=300&power_max=600
+```
+
+
+🔌 Connectors by type
+```bash
+    GET /api/products?category=connector&connector_type=MC4```
+```
+
+### **🎨 Frontend**
+
+Interactive filtering UI is available at:
+
+👉 http://localhost:55000/catalog
+
+Supports:
+- **Search=**
+- **Category filters=**
+- **Manufacturer filter=**
+- **Price range=**
+- **Dynamic attribute filters=**
+- **Live updates=**
+
+ 
+  No page reloads required.
+
+### **📁 Project structure (short)**
+```bash
+
+app/
+├── Http/Controllers/ProductController.php
+└── Services/ProductFilterService.php
+resources/
+├── js/components/ProductList.vue
+└── views/products.blade.php
+database/
+├── migrations/
+└── seed CSV importer
+docker/
+└── php-fpm + render deployment
+```
+✔ Completed Requirements
+
+✔ Filter by category, manufacturer and price range
+
+✔ Search by name, manufacturer, description
+
+✔ Filter category-specific attributes
+
+✔ Simple frontend (Vue 3 + Tailwind)
+
+✔ API + Docker deployment
+
+✔ Live demo online
+
+### **🧑‍💻 Author**
+
+Illia — Full Stack Developer
+
+poseva41@gmail.com
+
+https://github.com/pithatak
