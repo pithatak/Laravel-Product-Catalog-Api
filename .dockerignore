@@ -35,6 +35,7 @@
 **/docker
 LICENSE
 README.md
+render-start.sh
 
 **/tests
 **/phpunit.cache/*
